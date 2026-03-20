@@ -1,5 +1,5 @@
 <template>
-    <button @click="deleteTasks">Delete All Tasks</button>
+    <button @click="deleteTasks"><a>Delete All Tasks</a></button>
 </template>
 
 <script setup>
@@ -42,5 +42,10 @@ const deleteTasks = async () => {
     
     button:hover {
         background-color: #dc2626;
+    }
+
+    a {
+      text-decoration: none;
+      color: white;
     }
 </style>

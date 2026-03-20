@@ -1,10 +1,12 @@
 <template>
   <div>
     <h2>All Tasks</h2>
-    <p v-if="tasks.length === 0">Loading...</p>
+    <p v-if="tasks.length === 0">No tasks available</p>
     <ul>
       <li v-for="task in tasks">
-        {{ task }}
+        Title: {{ task.title }}
+        <br/>
+        Description: {{ task.description }}
       </li>
     </ul>
     <a href="/addTasks"> Add New Task </a>

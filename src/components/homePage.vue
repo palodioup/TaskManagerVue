@@ -57,4 +57,9 @@ div {
     text-decoration: none;
     margin-bottom: 40px;
 }
+
+a {
+  text-decoration: none;
+  color: #e2e8f0;
+}
 </style>

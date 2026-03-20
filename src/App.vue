@@ -5,7 +5,6 @@
 </template>
 
 <style>
-/* This kills the "Split Screen" bug */
 #app {
   display: block !important;
   max-width: 100% !important;
