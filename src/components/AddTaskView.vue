@@ -4,14 +4,19 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const taskTitle = ref('')
-const taskDescription = ref('')  
+const taskDescription = ref('')
 const error = ref('')
 const isLoading = ref(false)
 
-// ---- Add Task Title ----
+// ---- Add Task (Handles both Title and Description) ----
 const addTask = async () => {
   if (!taskTitle.value.trim()) {
     error.value = 'Please enter a task title'
+    return
+  }
+
+  if (!taskDescription.value.trim()) {
+    error.value = 'Please enter a task description'
     return
   }
 
@@ -20,65 +25,62 @@ const addTask = async () => {
     return
   }
 
+  if (taskDescription.value.trim().length > 500) {
+    error.value = 'Task description cannot exceed 500 characters'
+    return
+  }
+
   isLoading.value = true
-  error.value = ''
+  error.value = '' 
 
   try {
-    const response = await fetch('http://localhost:8080/add-task', {
+    const response = await fetch('http://localhost:8080/addTasks', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasktitle: taskTitle.value }),
+      body: JSON.stringify({
+        tasktitle: taskTitle.value,        
+        taskdescription: taskDescription.value,
+      }),
     })
-    console.log(response)
 
     if (response.ok) {
+      // If successful, navigate to all tasks and clear inputs
+      taskTitle.value = ''
+      taskDescription.value = ''
       router.push('/allTasks')
     } else {
-      error.value = 'Failed to save task.'
+      const errorData = await response.json();
+      error.value = errorData.error || 'Failed to save task.';
     }
   } catch (err) {
-    error.value = 'Server is not running. Check your terminal!'
+    error.value = 'Server is not running. Check your terminal!' 
+    console.error("Fetch error:", err);
   } finally {
     isLoading.value = false
   }
 }
 
-// ---- Add Task Description ----
-const addTaskDesc = async () => {
-  alert("runnign")
-  if (!taskDescription.value.trim()) {
-    error.value = 'Please enter a task description'
-    return
-  }
-
-  if (taskDescription.value.trim().length > 200) {
-    error.value = 'Task description cannot exceed 200 characters'
-    return
-  }
-  
-  console.log(taskDescription)
-  isLoading.value = true
-  error.value = ''
-
-  try {
-    const response = await fetch('http://localhost:8080/add-task', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskdescription: taskDescription.value }), 
-    })
-
-    if (response.ok) {
-      router.push('/allTasks')
-    } else {
-      error.value = 'Failed to save task description.'
+const deleteTask = async () => {
+    try {
+        const response = await fetch('http://localhost:8080/deletetasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (response.ok) {
+            alert('All tasks deleted successfully!');
+            router.push('/allTasks');
+        } else {
+            const errorData = await response.json();
+            error.value = errorData.error || 'Failed to delete all tasks.';
+        }
+    } catch (err) {
+        error.value = 'Server is not running or delete request failed.';
+        console.error("Delete all tasks error:", err);
     }
-  } catch (err) {
-    error.value = 'Server is not running. Check your terminal!'
-  } finally {
-    isLoading.value = false
-  }
-}
+};
+
 </script>
+
 <template>
   <div class="page-container">
     <div class="form-card">
@@ -99,11 +101,11 @@ const addTaskDesc = async () => {
       </div>
       <div class="input-group">
         <label>Task Description</label>
-        <input
+        <textarea
           type="text"
           placeholder="e.g. Finish it after dinner today"
           v-model="taskDescription"
-          @keyup.enter="addTaskDesc"
+          @keyup.enter="addTask"
           :disabled="isLoading"
         />
       </div>
@@ -112,15 +114,14 @@ const addTaskDesc = async () => {
 
       <div class="actions">
         <!-- The Cancel button takes you back home -->
-        <button class="btn-secondary" @click="router.push('/allTasks')">Cancel</button>
-        <button class="btn-primary" @click="addTask"  :disabled="isLoading">
+        <button class="btn-secondary" @click="router.push('/allTasks')" :disabled="isLoading">Cancel</button>
+        <button class="btn-primary" @click="addTask" :disabled="isLoading">
           {{ isLoading ? 'Saving...' : 'Create Task' }}
         </button>
-        <!-- <button class="btn-primary" @click="addTaskDesc"  :disabled="isLoading">
-          {{ isLoading ? 'Saving...' : 'Create Task' }}
-        </button> -->
+        <!-- Removed the separate addTaskDesc button as it's now handled by addTask -->
+
         <button class="btn-primary" @click="deleteTask" :disabled="isLoading">
-          <a href="/deleteTasks">Delete All Tasks</a>
+          Delete All Tasks
         </button>
       </div>
     </div>
@@ -128,6 +129,7 @@ const addTaskDesc = async () => {
 </template>
 
 <style scoped>
+/* Your existing styles remain unchanged */
 .page-container {
   min-height: 100vh;
   display: flex;

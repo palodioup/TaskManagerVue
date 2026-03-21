@@ -1,15 +1,16 @@
 <template>
   <div>
-    <h2>All Tasks</h2>
-    <p v-if="tasks.length === 0">No tasks available</p>
-    <ul>
-      <li v-for="task in tasks">
-        Title: {{ task.title }}
-        <br/>
-        Description: {{ task.description }}
-      </li>
-    </ul>
-    <a href="/addTasks"> Add New Task </a>
+    <span>
+      <h2>All Tasks</h2>
+      <p v-if="tasks.length === 0">No tasks available</p>
+      <table>
+        <tr v-for="task in tasks" :key="task.id">
+          <td>Title: {{ task.title }}</td>
+          <td>Description: {{ task.description }}</td>
+        </tr>
+      </table>
+      <a href="/addTasks"> Add New Task </a>
+    </span>
   </div>
 </template>
 
@@ -36,8 +37,31 @@ div {
   color: black;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin-left: 545px;
-  margin-top: 50px;
+  width: 80rem !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid black;
+}
+
+tr {
+  border-bottom: 1px solid black;
+}
+
+td {
+  padding: 10px;
+  text-align: left;
+}
+
 </style>
