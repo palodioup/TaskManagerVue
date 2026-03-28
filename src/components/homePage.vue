@@ -4,7 +4,7 @@
       <div class="form-card">
         <header>
           <h2>Welcome to Task Manager</h2>
-          <p>Manage your tasks efficiently and effortlessly.</p>
+          <p>Manage your tasks efficiently and effortlessly. <a href="/signin" >Sign in to continue</a> or already have an account? <a href="/login">Log in</a></p>
         </header>
 
         <div class="button-group">
@@ -58,8 +58,14 @@ div {
     margin-bottom: 40px;
 }
 
-a {
+p a {
   text-decoration: none;
-  color: #e2e8f0;
+  color: black;
+  text-decoration: underline;
+}
+
+a {
+  color: white;
+  text-decoration: none;
 }
 </style>

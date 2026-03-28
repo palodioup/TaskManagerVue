@@ -6,6 +6,9 @@ const router = useRouter()
 const taskTitle = ref('')
 const taskDescription = ref('')
 const error = ref('')
+const taskStatus = ref('To do')
+const taskDueDate = ref('')
+const taskPriority = ref('medium')
 const isLoading = ref(false)
 
 // ---- Add Task (Handles both Title and Description) ----
@@ -38,8 +41,11 @@ const addTask = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        tasktitle: taskTitle.value,        
-        taskdescription: taskDescription.value,
+        taskTitle: taskTitle.value,        
+        taskDescription: taskDescription.value,
+        taskStatus: taskStatus.value,
+        taskDueDate: taskDueDate.value,
+        taskPriority: taskPriority.value
       }),
     })
 
@@ -47,6 +53,9 @@ const addTask = async () => {
       // If successful, navigate to all tasks and clear inputs
       taskTitle.value = ''
       taskDescription.value = ''
+      taskDueDate.value = ''
+      taskPriority.value = 'medium'
+      taskStatus.value = 'to do'
       router.push('/allTasks')
     } else {
       const errorData = await response.json();
@@ -98,6 +107,34 @@ const deleteTask = async () => {
           @keyup.enter="addTask"
           :disabled="isLoading"
         />
+      </div>
+      <div class="input-group">
+        <label>Status</label>
+        <input
+          type="text"
+          placeholder="e.g. Finish the project report"
+          v-model="taskStatus"
+          @keyup.enter="addTask"
+          :disabled="isLoading"
+        />
+      </div>
+      <div class="input-group">
+        <label>Priority/Importance</label>
+        <select class="p" v-model="taskPriority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Due Date</label>
+        <select class="d" v-model="taskDueDate">
+          <option value="Today">Today</option>
+          <option value="Tomorrow">Tomorrow</option>
+          <option value="This Week">This Week</option>
+          <option value="Next Week">Next Week</option>
+          <option value="No Due Date">No Due Date</option>
+        </select>
       </div>
       <div class="input-group">
         <label>Task Description</label>
@@ -229,5 +266,11 @@ input:focus {
 a {
   text-decoration: none;
   color: #f1f5f9;
+}
+
+.p, .d{
+  padding: 10px;
+   border: 2px solid #e2e8f0;
+   border-radius: 10px;
 }
 </style>
