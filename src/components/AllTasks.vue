@@ -2,7 +2,9 @@
   <div class="tasks-container">
     <h2>All Tasks</h2>
 
-    <p v-if="tasks.length === 0" class="empty-text">No tasks available</p>
+    <p v-if="tasks.length === 0" class="empty-text">
+      No tasks available
+    </p>
 
     <table v-else class="tasks-table">
       <thead>
@@ -24,112 +26,177 @@
           <td>{{ task.priority }}</td>
           <td>{{ task.status }}</td>
           <td class="editdelete">
-            <button class="action-btn" @click="deleteTask(task.id)"><a>Delete</a></button>
+            <button class="action-btn" @click="deleteTask(task.id)">
+              Delete
+            </button>
             <button class="action-btn2" @click="editTask(task.id)">
-              <a>Edit</a>
+              Edit
             </button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+
   <div class="specialdivcontainer">
-    <a href="/addTasks" class="add-btn"> Add New Task </a>
-    <a href="/deleteTasks" class="add-btn2"> Delete All Tasks </a>
+    <a href="/addTasks" class="add-btn">Add New Task</a>
+    <a href="/deleteTasks" class="add-btn2">Delete All Tasks</a>
   </div>
 
-  <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
+  <!-- EDIT MODAL -->
+  <div
+    v-if="showEditModal"
+    class="modal-overlay"
+    @click.self="closeEditModal"
+  >
     <div class="modal">
       <div class="modal-header">
         <h2>Update Task</h2>
         <button class="btn-close" @click="closeEditModal">&times;</button>
       </div>
+
       <div class="modal-body">
         <div class="form-group">
-          <label for="edit-status">Status:</label>
-          <select id="edit-status" v-model="editForm.status">
+          <label>Status</label>
+          <select v-model="editForm.status">
             <option value="To do">To do</option>
             <option value="In progress">In progress</option>
             <option value="Done">Done</option>
           </select>
         </div>
+
         <div class="form-group">
-          <label for="edit-dueDdate">Due Date:</label>
+          <label>Due Date</label>
           <input
-            id="edit-dueDate"
             type="text"
             v-model="editForm.dueDate"
-            placeholder="e.g. Today, Tomorrow, This Week"
+            placeholder="e.g. Today, Tomorrow"
           />
         </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" @click="closeEditModal">Cancel</button>
-          <button class="btn-save" @click="saveTask">Save</button>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input
+            type="text"
+            v-model="editForm.description"
+            placeholder="Enter task description"
+          />
         </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" @click="closeEditModal">
+          Cancel
+        </button>
+        <button class="btn-save" @click="updateTask">
+          Save
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const tasks = ref([])
 const showEditModal = ref(false)
+
 const editForm = ref({
   id: null,
   status: '',
   dueDate: '',
+  description: '',
 })
 
-const closeEditModal = () => {
-  showEditModal.value = false
-  editForm.value = { id: null, status: '', dueDate: '' }
-}
-
-const deleteTask = async (id) => {
-  if (!id) {
-    console.error('Task ID is required to delete a task')
-    return
-  }
-  try {
-    const response = await fetch(`http://localhost:8080/tasks/${id}`, {
-      method: 'DELETE',
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    tasks.value = tasks.value.filter((task) => task.id !== id)
-  } catch (error) {
-    console.error('Error deleting task:', error)
-    alert('Failed to delete task:', error)
-  }
-}
-
-const editTask = (id) => {
-  const taskToEdit = tasks.value.find((task) => task.id === id)
-  if (taskToEdit) {
-    editForm.value = { ...taskToEdit }
-    showEditModal.value = true
-  } else {
-    console.error('Task not found for editing:', id)
-    alert('Task not found for editing')
-  }
-}
-
+/* ------------------ FETCH TASKS ------------------ */
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:8080/tasks')
-    const data = await response.json()
-    tasks.value = data
-  } catch (error) {
-    console.error('Error fetching tasks:', error)
-    tasks.value = ['No tasks available']
+    const res = await fetch('http://localhost:8080/tasks')
+    tasks.value = await res.json()
+  } catch (err) {
+    console.error('Fetch error:', err)
+    tasks.value = []
   }
 })
-</script>
 
+/* ------------------ EDIT ------------------ */
+const editTask = (id) => {
+  const task = tasks.value.find(t => t.id === id)
+  if (!task) return
+
+  editForm.value = { ...task }
+  showEditModal.value = true
+}
+
+/* ------------------ UPDATE ------------------ */
+const updateTask = async () => {
+  if (!editForm.value.id) return
+
+  try {
+    const res = await fetch(
+      `http://localhost:8080/tasks/${editForm.value.id}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: editForm.value.status,
+          dueDate: editForm.value.dueDate,
+          description: editForm.value.description,
+        }),
+      }
+    )
+
+    if (!res.ok) throw new Error('Update failed')
+
+    const index = tasks.value.findIndex(
+      t => t.id === editForm.value.id
+    )
+
+    if (index !== -1) {
+      tasks.value[index] = {
+        ...tasks.value[index],
+        status: editForm.value.status,
+        dueDate: editForm.value.dueDate,
+        description: editForm.value.description,
+      }
+    }
+
+    closeEditModal()
+  } catch (err) {
+    console.error(err)
+    alert('Failed to update task')
+  }
+}
+
+/* ------------------ DELETE ------------------ */
+const deleteTask = async (id) => {
+  try {
+    const res = await fetch(
+      `http://localhost:8080/tasks/${id}`,
+      { method: 'DELETE' }
+    )
+
+    if (!res.ok) throw new Error('Delete failed')
+
+    tasks.value = tasks.value.filter(t => t.id !== id)
+  } catch (err) {
+    console.error(err)
+    alert('Failed to delete task')
+  }
+}
+
+/* ------------------ CLOSE MODAL ------------------ */
+const closeEditModal = () => {
+  showEditModal.value = false
+  editForm.value = {
+    id: null,
+    status: '',
+    dueDate: '',
+    description: '',
+  }
+}
+</script>
 <style scoped>
 * {
   box-sizing: border-box;
@@ -437,7 +504,6 @@ section {
 
 .form-group select,
 .form-group input {
-
   padding: 0.75rem;
   border: 2px solid #e3e9f5;
   border-radius: 8px;
