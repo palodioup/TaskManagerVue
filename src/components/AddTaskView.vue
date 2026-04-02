@@ -11,6 +11,7 @@ const taskDueDate = ref('')
 const taskPriority = ref('medium')
 const isLoading = ref(false)
 
+
 // ---- Add Task (Handles both Title and Description) ----
 const addTask = async () => {
   if (!taskTitle.value.trim()) {
@@ -91,7 +92,8 @@ const deleteTask = async () => {
 </script>
 
 <template>
-  <div class="page-container">
+ <div class="daddy">
+   <div class="page-container">
     <div class="form-card">
       <header>
         <h2>Add New Task</h2>
@@ -163,17 +165,28 @@ const deleteTask = async () => {
       </div>
     </div>
   </div>
+ </div>
 </template>
 
 <style scoped>
+.daddy{ 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background: linear-gradient(45deg, rgb(2, 0, 20), rgb(9, 0, 32), rgb(11, 0, 47));
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 /* Your existing styles remain unchanged */
 .page-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  margin-left: 430px;
   align-items: center;
   background-color: #f8fafc;
+  border-radius: 10px;
+  margin: 15px;
 }
 
 textarea {
@@ -235,25 +248,39 @@ input:focus {
   margin-top: 2rem;
 }
 
-.btn-primary {
-  background: #4f46e5;
-  color: white;
-  flex: 2;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
+.btn-primary,
 .btn-secondary {
-  background: #f1f5f9;
-  color: #475569;
-  flex: 1;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
+  position: relative; /* Required for the pseudo-element */
+    z-index: 1;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: white;
+    border: 4px solid transparent;
+    border-radius: 10px;
+    font-size: 12px;
+    /* Initial Background */
+    background: linear-gradient(45deg, rgb(11, 0, 47), rgb(14, 0, 30), rgb(11, 0, 47)) padding-box, 
+                linear-gradient(45deg, #2e0053, #400173, #5d04a6, rgb(11, 0, 47), rgb(14, 0, 30), rgb(11, 0, 47)) border-box;
+
+}
+
+.btn-primary::before,
+.btn-secondary::before {
+  content: "";
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px; /* Stretch to cover border */
+    z-index: -1;
+    border-radius: 10px;
+    /* Hover Background */
+    background: linear-gradient(45deg, rgb(11, 0, 47), rgb(29, 0, 63), rgb(11, 0, 47)) padding-box, 
+                linear-gradient(45deg, rgb(14, 0, 30), rgb(11, 0, 47), rgb(11, 0, 47), #2e0053, #400173, #5d04a6) border-box;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.btn-primary:hover::before,
+.btn-secondary:hover::before {
+  opacity: 1;
 }
 
 .error-msg {
