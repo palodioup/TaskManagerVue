@@ -14,6 +14,8 @@
           <th>Due Date</th>
           <th>Priority</th>
           <th>Status</th>
+          <th>Data Size(Bytes)</th>
+          <th>Data Size(KB)</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -25,6 +27,8 @@
           <td>{{ task.dueDate }}</td>
           <td>{{ task.priority }}</td>
           <td>{{ task.status }}</td>
+          <td>{{ task.dataSizeB }}</td>
+          <td>{{ task.dataSizeKB }}</td>
           <td class="editdelete">
             <button class="action-btn" @click="deleteTask(task.id)">
               Delete
